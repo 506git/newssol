@@ -36,11 +36,12 @@ class MainViewModel : ViewModel() {
     }
 
     fun minusTimeHour(){
-        _timeHour.value?.minus(1)
+        _timeHour.value = _timeHour.value?.minus(1)
     }
 
     fun minusTimeMin(){
-        _timeMin.value?.minus(1)
+        _timeMin.value = _timeMin.value?.minus(1)
+//        _timeMin.value?.minus(1)
     }
 
     fun setProgressTimer(num: Int){

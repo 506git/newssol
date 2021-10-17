@@ -2,6 +2,7 @@ package com.example.newssolapplication.ui.main
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,12 +33,21 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var mBinding: MainFragmentBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         mainViewModel =
-                ViewModelProvider(this).get(MainViewModel::class.java).apply {
-                }
+            ViewModelProvider(this).get(MainViewModel::class.java).apply {
+            }
 
-        mBinding = DataBindingUtil.inflate<MainFragmentBinding>(inflater, R.layout.main_fragment, container, false).apply {
+        mBinding = DataBindingUtil.inflate<MainFragmentBinding>(
+            inflater,
+            R.layout.main_fragment,
+            container,
+            false
+        ).apply {
             viewModel = mainViewModel
             lifecycleOwner = viewLifecycleOwner
         }
@@ -67,10 +77,12 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
         var min = 0
 
         mainViewModel.timeHour.observe(viewLifecycleOwner, Observer {
+            mBinding.timerHour.value = it.toInt()
             hour = it.toInt()
         })
 
         mainViewModel.timeMin.observe(viewLifecycleOwner, Observer {
+            mBinding.timerMin.value = it.toInt()
             min = it.toInt()
         })
 
@@ -79,8 +91,8 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
         })
 
         mBinding.btnStart.setOnClickListener {
-            mainViewModel.setProgressTimer(hour*60+min)
-            Toast.makeText(context,timer.toString(),Toast.LENGTH_SHORT).show()
+            mainViewModel.setProgressTimer(hour * 60 + min)
+            Toast.makeText(context, timer.toString(), Toast.LENGTH_SHORT).show()
             startTimer()
         }
         return mBinding.root
@@ -89,39 +101,42 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
     private fun startTimer() {
         var jobTime = timer
         CoroutineScope(IO).launch {
-            do{
-                withContext(Main){
+            withContext(Main) {
+                do {
                     mBinding.progressTimer.smoothProgress(jobTime)
-                    Toast.makeText(context,jobTime.toString(),Toast.LENGTH_SHORT).show()
+                    Log.d("testTime",jobTime.toString())
+                    Toast.makeText(context, jobTime.toString(), Toast.LENGTH_SHORT).show()
                     calTimer(jobTime)
-                }
-                jobTime -= 1
-                delay(1000)
-            }while (jobTime == 0)
-            withContext(Main){
-            Toast.makeText(context,"finish",Toast.LENGTH_SHORT).show()
+//                    delay(60000L) // 1분
+                    delay(1000L) // 1초
+                    jobTime -= 1
+                } while (jobTime != 0)
+            }
+            withContext(Main) {
+                Toast.makeText(context, "finish", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun calTimer(jobTime: Int) {
-        if (jobTime % 60 == 0){
+        Log.d("testTimed", (jobTime%60).toString())
+        mainViewModel.setTimeMin(jobTime%60)
+        if (jobTime % 60 == 0) {
             mainViewModel.minusTimeHour()
-        } else {
-            mainViewModel.minusTimeMin()
         }
     }
 
-    private fun ProgressBar.smoothProgress(percent: Int){
-        val animation = ObjectAnimator.ofInt(this,"progress",percent)
+    private fun ProgressBar.smoothProgress(percent: Int) {
+        val animation = ObjectAnimator.ofInt(this, "progress", percent)
         animation.apply {
             duration = 400
             interpolator = DecelerateInterpolator()
             start()
         }
     }
+
     override fun onValueChange(numberPicker: NumberPicker?, p1: Int, p2: Int) {
-        when (numberPicker?.id){
+        when (numberPicker?.id) {
             R.id.timer_hour -> {
                 mainViewModel.setTimeHour(p2)
             }
