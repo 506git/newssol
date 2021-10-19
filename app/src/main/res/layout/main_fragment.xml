@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.example.newssolapplication.ui.main.MainViewModel" />
@@ -19,10 +20,11 @@
         tools:context=".ui.main.MainFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_timer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@drawable/bg_timer_border"
-            android:elevation="7dp"
+            android:elevation="3dp"
             app:layout_constraintHeight_percent="0.3"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -112,8 +114,65 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="@+id/timer_min"
                 app:layout_constraintTop_toBottomOf="@+id/timer_min" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_margin="5dp"
+            android:id="@+id/txt_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="즐겨찾기"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_like"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view_timer" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_like"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/txt_category"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.2"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_like"
+             />
+
+        <TextView
+            android:layout_margin="5dp"
+            android:id="@+id/txt_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="카테고리"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_category"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycler_like" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_category"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintBottom_toTopOf="@+id/recycler_music"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_category"
+            tools:listitem="@layout/item_category_contact" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_music"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycler_category"
+            tools:listitem="@layout/item_contact" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

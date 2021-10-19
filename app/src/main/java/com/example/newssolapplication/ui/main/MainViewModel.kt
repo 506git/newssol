@@ -1,19 +1,40 @@
 package com.example.newssolapplication.ui.main
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.newssolapplication.common.dto.CategoryVO
+import com.example.newssolapplication.common.dto.LikeDTO
+import com.example.newssolapplication.common.repository.FirebaseRepository
+import com.example.newssolapplication.common.room.LikeContact
+import com.example.newssolapplication.common.room.LikeContactRepository
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
     // TODO: Implement the ViewModel
     private val _timeHour = MutableLiveData<Int>()
     private val _timeMin = MutableLiveData<Int>()
     private val _progressTimer = MutableLiveData<Int>()
 
+    private val firebaseRepository = FirebaseRepository()
+    private val roomRepository = LikeContactRepository(application)
+
+    private val likeList = roomRepository.getLikeAll()
+    private val categoryList = firebaseRepository.getCategoryAll()
+
     init {
         _timeHour.value = 0
         _timeMin.value = 0
         _progressTimer.value = 0
+    }
+
+    fun getCategoryAll() : LiveData<MutableList<CategoryVO>>{
+        return this.categoryList
+    }
+
+    fun getLikeAll(): LiveData<List<LikeContact>> {
+        return this.likeList
     }
 
     val timeHour : LiveData<Int>
