@@ -12,7 +12,7 @@ import com.example.newssolapplication.common.room.LikeContact
 import com.example.newssolapplication.common.room.LikeContactRepository
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    // TODO: Implement the ViewModel
+
     private val _timeHour = MutableLiveData<Int>()
     private val _timeMin = MutableLiveData<Int>()
     private val _progressTimer = MutableLiveData<Int>()
@@ -29,7 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _progressTimer.value = 0
     }
 
-    fun getCategoryAll() : LiveData<MutableList<CategoryVO>>{
+    fun getCategoryAll() : LiveData<List<CategoryVO>>{
         return this.categoryList
     }
 
@@ -67,6 +67,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setProgressTimer(num: Int){
         _progressTimer.value = num
+    }
+
+    fun insert(likeContact: LikeContact){
+        roomRepository.insert(likeContact)
     }
 
 }

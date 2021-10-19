@@ -51,16 +51,19 @@ class FirebaseRepository() {
         })
     }
 
-    fun getCategoryAll(): LiveData<MutableList<CategoryVO>>{
-        val mutableData = MutableLiveData<MutableList<CategoryVO>>()
+    fun getCategoryAll(): LiveData<List<CategoryVO>>{
+        val mutableData = MutableLiveData<List<CategoryVO>>()
         val list: MutableList<CategoryVO> = mutableListOf<CategoryVO>()
+        Log.d("testdddd","its.child().value.toString()")
         database.child("category").child(auth?.uid!!).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                Log.d("testdddd","its.child().value.toString()")
                 list.clear()
                 for (its in dataSnapshot.children ) {
                     val data = CategoryVO(its.child("name").value.toString(), its.child("count").value.toString().toInt(),
-                            its.key
+                        its.key
                     )
+                    Log.d("testdddd",its.child("name").value.toString())
                     list.add(data)
                 }
                 mutableData.value = list
@@ -73,8 +76,8 @@ class FirebaseRepository() {
         return mutableData
     }
 
-    fun getAll(): LiveData<MutableList<LikeDTO>>{
-        val mutableData = MutableLiveData<MutableList<LikeDTO>>()
+    fun getAll(): LiveData<List<LikeDTO>>{
+        val mutableData = MutableLiveData<List<LikeDTO>>()
         val list: MutableList<LikeDTO> = mutableListOf<LikeDTO>()
         database.child("category").child(auth?.uid!!).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(dataSnapshot: DataSnapshot) {

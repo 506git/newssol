@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newssolapplication.R
 import com.example.newssolapplication.common.dto.CategoryVO
 
-class CategoryAdapter(val categoryItemClick: (CategoryVO) -> Unit): RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
-
+class CategoryAdapter(val categoryItemClick: (CategoryVO) -> Unit):
+    RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
     private var category: List<CategoryVO> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, i: Int): ViewHolder {
@@ -20,6 +20,7 @@ class CategoryAdapter(val categoryItemClick: (CategoryVO) -> Unit): RecyclerView
     }
 
     override fun onBindViewHolder(holder: CategoryAdapter.ViewHolder, position: Int) {
+        Log.d("TESTDD", category[position].name.toString())
         holder.bind(category[position])
     }
 

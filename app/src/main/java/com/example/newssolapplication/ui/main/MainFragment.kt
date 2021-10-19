@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newssolapplication.R
 import com.example.newssolapplication.common.CommonFragment
+import com.example.newssolapplication.common.dto.CategoryVO
 import com.example.newssolapplication.common.room.LikeContact
 import com.example.newssolapplication.databinding.MainFragmentBinding
 import com.example.newssolapplication.ui.main.adapter.CategoryAdapter
@@ -41,12 +42,7 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        mBinding = DataBindingUtil.inflate<MainFragmentBinding>(
-                inflater,
-                R.layout.main_fragment,
-                container,
-                false
-        ).apply {
+        mBinding = DataBindingUtil.inflate<MainFragmentBinding>(inflater, R.layout.main_fragment, container, false).apply {
             viewModel = mainViewModel
             lifecycleOwner = viewLifecycleOwner
         }
@@ -98,7 +94,7 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
             mBinding.progressTimer.smoothProgress(it.toInt())
             timer = it.toInt()
         })
-        val contact = LikeContact(id, "테스트", "music1" ,"music2","music3")
+//        val contact = LikeContact(id, "테스트", "music1" ,"music2","music3")
 //        mainViewModel.insert(contact)
         val likeListAdapter = LikeListAdapter { category ->
             Toast.makeText(activity, category.title, Toast.LENGTH_LONG).show()
@@ -124,19 +120,19 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
             setHasFixedSize(true)
         }
 
-//        mBinding.recyclerMusic.apply {
-//            setAdapter()
-//            layoutManager = LinearLayoutManager(context).apply {
-//            orientation = LinearLayoutManager.VERTICAL
-//        }
-//            setHasFixedSize(true)
-//        }
+        mBinding.recyclerMusic.apply {
+            adapter = categoryAdapter
+            layoutManager = LinearLayoutManager(context).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            setHasFixedSize(true)
+        }
 
-        mainViewModel.getLikeAll().observe(viewLifecycleOwner, Observer<List<LikeContact>> {
-                contacts -> likeListAdapter.setLikeList(contacts!!)
+        mainViewModel.getLikeAll().observe(viewLifecycleOwner, Observer<List<LikeContact>> { contacts ->
+            likeListAdapter.setLikeList(contacts!! as MutableList<LikeContact>)
         })
 
-        mainViewModel.getCategoryAll().observe(viewLifecycleOwner, Observer { categoryList ->
+        mainViewModel.getCategoryAll().observe(viewLifecycleOwner, Observer<List<CategoryVO>> { categoryList ->
             categoryAdapter.setCategory(categoryList)
         })
 
