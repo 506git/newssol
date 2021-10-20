@@ -1,34 +1,34 @@
 package com.example.newssolapplication.ui.main
 
 import android.animation.ObjectAnimator
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.widget.NumberPicker
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newssolapplication.R
 import com.example.newssolapplication.common.CommonFragment
 import com.example.newssolapplication.common.dto.CategoryVO
+import com.example.newssolapplication.common.dto.ItemDTO
 import com.example.newssolapplication.common.room.LikeContact
 import com.example.newssolapplication.databinding.MainFragmentBinding
 import com.example.newssolapplication.ui.main.adapter.CategoryAdapter
+import com.example.newssolapplication.ui.main.adapter.ItemAdapter
 import com.example.newssolapplication.ui.main.adapter.LikeListAdapter
-import kotlinx.coroutines.CoroutineScope
+import com.example.ssolrangapplication.common.setSafeOnClickListener
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
+class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener{
 
     companion object {
         fun newInstance() = MainFragment()
@@ -39,7 +39,15 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
     private lateinit var mBinding: MainFragmentBinding
     private var hour = 0
     private var min = 0
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    private var btnStartClick = false
+    private var btnCancelClick = false
+    private var btnPauseClick = false
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         mBinding = DataBindingUtil.inflate<MainFragmentBinding>(inflater, R.layout.main_fragment, container, false).apply {
@@ -47,12 +55,20 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
             lifecycleOwner = viewLifecycleOwner
         }
 
-        mBinding.btnStart.setOnClickListener {
+        mBinding.btnStart.setSafeOnClickListener {
             mainViewModel.setProgressTimer(hour * 60 + min)
+            mainViewModel.timerStatus("GONE")
             Toast.makeText(context, timer.toString(), Toast.LENGTH_SHORT).show()
-            startTimer()
+            mainViewModel.startTimer()
         }
 
+        mBinding.btnCancel.setSafeOnClickListener {
+            mainViewModel.timerStatus("VISIBLE")
+            mainViewModel.stopTimer()
+        }
+        mBinding.btnPause.setSafeOnClickListener {
+            mainViewModel.pauseTimer()
+        }
         initView()
         return mBinding.root
     }
@@ -80,28 +96,35 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
             setOnValueChangedListener(this@MainFragment)
         }
 
-        mainViewModel.timeHour.observe(viewLifecycleOwner, Observer {
-            mBinding.timerHour.value = it.toInt()
-            hour = it.toInt()
-        })
-
-        mainViewModel.timeMin.observe(viewLifecycleOwner, Observer {
-            mBinding.timerMin.value = it.toInt()
-            min = it.toInt()
+        mainViewModel.textTime.observe(viewLifecycleOwner, Observer {
+            mBinding.textTime.text = it.toString()
         })
 
         mainViewModel.progressTime.observe(viewLifecycleOwner, Observer {
             mBinding.progressTimer.smoothProgress(it.toInt())
             timer = it.toInt()
         })
-//        val contact = LikeContact(id, "테스트", "music1" ,"music2","music3")
-//        mainViewModel.insert(contact)
+
+        mainViewModel.timerStatus.observe(viewLifecycleOwner, Observer {
+            mBinding.btnStart.visibility = it.toInt()
+        })
+
+        mainViewModel.timerRevStatus.observe(viewLifecycleOwner, Observer {
+            mBinding.btnPause.visibility = it.toInt()
+            mBinding.btnCancel.visibility = it.toInt()
+        })
+
+
         val likeListAdapter = LikeListAdapter { category ->
             Toast.makeText(activity, category.title, Toast.LENGTH_LONG).show()
         }
 
         val categoryAdapter = CategoryAdapter { category ->
             Toast.makeText(activity, category.name, Toast.LENGTH_LONG).show()
+        }
+
+        val itemAdapter = ItemAdapter { item ->
+            Toast.makeText(activity, item.title, Toast.LENGTH_LONG).show()
         }
 
         mBinding.recyclerLike.apply {
@@ -121,51 +144,22 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
         }
 
         mBinding.recyclerMusic.apply {
-            adapter = categoryAdapter
-            layoutManager = LinearLayoutManager(context).apply {
-                orientation = LinearLayoutManager.VERTICAL
-            }
+            adapter = itemAdapter
+            layoutManager = GridLayoutManager(context, 2)
             setHasFixedSize(true)
         }
 
         mainViewModel.getLikeAll().observe(viewLifecycleOwner, Observer<List<LikeContact>> { contacts ->
-            likeListAdapter.setLikeList(contacts!! as MutableList<LikeContact>)
-        })
+                likeListAdapter.setLikeList(contacts!! as MutableList<LikeContact>)
+            })
 
         mainViewModel.getCategoryAll().observe(viewLifecycleOwner, Observer<List<CategoryVO>> { categoryList ->
-            categoryAdapter.setCategory(categoryList)
-        })
+                categoryAdapter.setCategory(categoryList)
+            })
 
-
-    }
-
-    private fun startTimer() {
-        var jobTime = timer
-        CoroutineScope(IO).launch {
-            withContext(Main) {
-                do {
-//                    mBinding.progressTimer.smoothProgress(jobTime)
-                    mainViewModel.setProgressTimer(jobTime)
-                    Log.d("testTime", jobTime.toString())
-                    calTimer(jobTime)
-//                    delay(60000L) // 1분
-                    delay(1000L) // 1초
-                    jobTime -= 1
-                } while (jobTime >= 0)
-                timer = 0
-            }
-            withContext(Main) {
-                Toast.makeText(context, "finish", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun calTimer(jobTime: Int) {
-        Log.d("testTimed", (jobTime % 60).toString())
-        mainViewModel.setTimeMin(jobTime % 60)
-        if (jobTime % 60 == 59) {
-            mainViewModel.minusTimeHour()
-        }
+        mainViewModel.getItemAll().observe(viewLifecycleOwner, Observer<List<ItemDTO>> { categoryList ->
+                itemAdapter.setItemList(categoryList)
+            })
     }
 
     private fun ProgressBar.smoothProgress(percent: Int) {
@@ -177,13 +171,22 @@ class MainFragment : CommonFragment(), NumberPicker.OnValueChangeListener {
         }
     }
 
-    override fun onValueChange(numberPicker: NumberPicker?, p1: Int, p2: Int) {
+    private fun NumberPicker.smoothValue(value: Int) {
+        val animation = ObjectAnimator.ofInt(this, "value", value)
+        animation.apply {
+            duration = 300
+            interpolator = DecelerateInterpolator()
+            start()
+        }
+    }
+
+    override fun onValueChange(numberPicker: NumberPicker?, oldVal: Int, newVal: Int) {
         when (numberPicker?.id) {
             R.id.timer_hour -> {
-                mainViewModel.setTimeHour(p2)
+                mainViewModel.setTimeHour(newVal)
             }
             R.id.timer_min -> {
-                mainViewModel.setTimeMin(p2)
+                mainViewModel.setTimeMin(newVal)
             }
         }
 

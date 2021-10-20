@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.newssolapplication.common.dto.CategoryVO
+import com.example.newssolapplication.common.dto.ItemDTO
 import com.example.newssolapplication.common.dto.LikeDTO
 import com.example.newssolapplication.model.User
 import com.google.firebase.auth.ktx.auth
@@ -54,16 +55,13 @@ class FirebaseRepository() {
     fun getCategoryAll(): LiveData<List<CategoryVO>>{
         val mutableData = MutableLiveData<List<CategoryVO>>()
         val list: MutableList<CategoryVO> = mutableListOf<CategoryVO>()
-        Log.d("testdddd","its.child().value.toString()")
         database.child("category").child(auth?.uid!!).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                Log.d("testdddd","its.child().value.toString()")
                 list.clear()
                 for (its in dataSnapshot.children ) {
                     val data = CategoryVO(its.child("name").value.toString(), its.child("count").value.toString().toInt(),
                         its.key
                     )
-                    Log.d("testdddd",its.child("name").value.toString())
                     list.add(data)
                 }
                 mutableData.value = list
@@ -76,14 +74,14 @@ class FirebaseRepository() {
         return mutableData
     }
 
-    fun getAll(): LiveData<List<LikeDTO>>{
-        val mutableData = MutableLiveData<List<LikeDTO>>()
-        val list: MutableList<LikeDTO> = mutableListOf<LikeDTO>()
+    fun getItemAll(): LiveData<List<ItemDTO>>{
+        val mutableData = MutableLiveData<List<ItemDTO>>()
+        val list: MutableList<ItemDTO> = mutableListOf<ItemDTO>()
         database.child("category").child(auth?.uid!!).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 list.clear()
                 for (its in dataSnapshot.children ) {
-                    val data = LikeDTO(its.child("name").value.toString(), its.key)
+                    val data = ItemDTO(its.child("name").value.toString(), its.key)
                     list.add(data)
                 }
                 mutableData.value = list

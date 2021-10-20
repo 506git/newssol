@@ -11,8 +11,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/view_folder"
-        android:layout_width="95dp"
-        android:layout_height="95dp"
+        android:layout_width="115dp"
+        android:layout_height="115dp"
         android:background="@drawable/border_square"
         android:padding="10dp">
 
